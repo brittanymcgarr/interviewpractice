@@ -1,0 +1,186 @@
+#################################################################################
+## Kevin Bacon Game                                                            ##
+##                                                                             ##    
+## Kevin Bacon is an actor in many films. As a result of his fame, many actors ##
+## play a game where they try to figure out the fewest connections between     ##
+## cast members to Kevin Bacon.                                                ##
+##                                                                             ##    
+## e.g. Harrison Ford's "Bacon Number" is 2:                                   ##
+##      Harrison Ford and Karen Allen appeared in Raiders of the Lost Ark.     ##
+##      Karen Allen and Kevin Bacon appeared in Animal House.                  ##
+##                                                                             ##            
+## (You can type "Bacon Number X" where X is the actor's name into Google.)    ##
+##                                                                             ##    
+## Given a list of movies with the full cast names, create a data structure to ##
+## store an actor's past cast members and find their Bacon Number. Bacon's     ##
+## own Bacon Number is zero, and -1 indicates there are no listed connections  ##
+## in the data set.                                                            ##
+##                                                                             ##
+#################################################################################
+
+BACON = "Kevin Bacon"
+
+class Actor:
+    name = ""
+    casts = {}
+    baconNumber = -1
+    baconPath = []
+    touchPath = []
+
+    # Constructor with actor name
+    def __init__(self, nameIN):
+        self.name = nameIN
+    
+    # Print Bacon Path
+    # Examines the current Bacon Number of the actor and prints the
+    # Bacon Path that has been found for the actor along with movies.
+    def printBaconPath(self):
+        if self.baconNumber < 0:
+            print self.name + " has no connection to Kevin Bacon listed.\n"
+        elif self.baconNumber == 0:
+            print self.name + " IS Kevin Bacon.\n"
+        else:
+            print self.name + "\'s Bacon Number is " + str(self.baconNumber) + ":\n"
+            
+            linkname = self.name
+            
+            for actor, movie in self.baconPath[::-1]:
+                print linkname + " and " + actor + " appeared in " + movie + ".\n"
+                linkname = actor
+
+    # Add Movie
+    # Takes the title as a key for the Actor and adds the list of cast Actors
+    # as the value
+    def addMovie(self, movie, cast):
+        if self in cast:
+            self.casts[movie] = list(cast)
+            
+            # STUB: For some reason, everyone is getting cast in all the films. Look into it later
+            #print "\n" + self.name + " has films and casts: \n"
+            
+            #for film, cast in self.casts.items():
+             #   print "\n" + film + "\n"
+                
+              #  for actor in cast:
+               #     print actor.name
+
+    # Find Bacon
+    # Uses a Breadth-first search to find Kevin Bacon from the given casts
+    # Because Python is pass by reference (-ish), other Actors who have already
+    # called this should be able to give their own Bacon Number and path, if
+    # present
+    def findBacon(self):
+        # Handle the man, himself
+        if self.name == BACON:
+            self.baconNumber = 0
+            return True
+        
+        # Check the Actor's current casts for Kevin, the lowest value found so far,
+        # or queue them for further examination
+        queue = {}
+        
+        for movie, cast in self.casts.items():
+            if self in cast:
+                for actor in cast:
+                    # Kevin Bacon directly appears in one of the actor's movies
+                    if actor.name == BACON:
+                        self.baconNumber = 1
+                        self.baconPath = [(BACON, movie)]
+                        return True
+                    
+                    # The actor has not examined their own Bacon Number
+                    hold = queue.get(actor.name, None)
+                    
+                    if hold == None and actor.name != self.name:
+                        hold = [(actor, movie)]
+                    
+                    queue[actor.name] = hold
+            else:
+                self.casts[movie] = []
+        
+        queue = list(queue.values())
+        
+        for path in queue:
+            if path != None and len(path) > 1:
+                actor = path[0]
+                movie = path[1]
+                
+                if actor.baconNumber >= 0:
+                    self.baconNumber = actor.baconNumber + 1
+                    self.baconPath = actor.baconPath.deepcopy()
+                    self.baconPath.append((actor.name, movie))
+                    return True
+                
+                for film, cast in actor.casts.items():
+                    for member in cast:
+                        if member.name == BACON:
+                            actor.baconNumber = 1
+                            found = actor.touchPath.deepcopy()
+                            actor.baconPath = [(BACON, film)]
+                            self.baconNumber = len(found) + 1
+                            self.baconPath = actor.baconPath[:] + [(actor.name, film)] + found[::-1]
+                            return True
+                        else:
+                            if member.name != self.name:
+                                member.touchPath.append((actor.name, movie))
+                                queue.append(member, film)
+            
+            queue.pop(0)
+            
+        # If, after searching all actors, no paths were found, indicate this
+        self.baconPath = []
+        self.baconNumber = -1
+        return False
+
+
+def main():
+    movies = ['Apollo13', 'Armageddon', 'DieHard', 'Footloose', 'TheRock']
+    actors = {}
+    cast = []
+    crew = []
+    
+    # Read in the cast lists and create actor nodes
+    for movie in movies:
+        del cast[:]
+        cast = []
+        
+        with open(movie + ".txt", 'r') as file:
+            cast = file.read().split('\n')
+        
+        del crew[:]
+        crew = []
+        
+        for actor in cast:
+            name = actors.get(actor, None)
+            
+            if name == None:
+                name = Actor(actor)
+    
+            crew.append(name)
+        
+        for actor in crew:
+            actor.addMovie(str(movie), crew[:])
+            actors[actor.name] = actor
+    
+    # Testing some actors
+    # Kevin Bacon
+    Baconator = actors.get(BACON)
+    Baconator.findBacon()
+    Baconator.printBaconPath()
+    
+    # 1 degree
+    JohnLithgow = actors.get("John Lithgow")
+    JohnLithgow.findBacon()
+    JohnLithgow.printBaconPath()
+    
+    # 2 degree
+    NicolasCage = actors.get("Nicolas Cage")
+    NicolasCage.findBacon()
+    NicolasCage.printBaconPath()
+    
+    BruceWillis = actors.get("Bruce Willis")
+    BruceWillis.findBacon()
+    BruceWillis.printBaconPath()
+
+
+main()
