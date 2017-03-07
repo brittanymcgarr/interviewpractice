@@ -18,18 +18,20 @@
 ##                                                                             ##
 #################################################################################
 
+import copy
+
+
 BACON = "Kevin Bacon"
 
 class Actor:
-    name = ""
-    casts = {}
-    baconNumber = -1
-    baconPath = []
-    touchPath = []
 
     # Constructor with actor name
     def __init__(self, nameIN):
         self.name = nameIN
+        self.casts = {}
+        self.baconNumber = -1
+        self.baconPath = []
+        self.touchPath = []
     
     # Print Bacon Path
     # Examines the current Bacon Number of the actor and prints the
@@ -53,16 +55,7 @@ class Actor:
     # as the value
     def addMovie(self, movie, cast):
         if self in cast:
-            self.casts[movie] = list(cast)
-            
-            # STUB: For some reason, everyone is getting cast in all the films. Look into it later
-            #print "\n" + self.name + " has films and casts: \n"
-            
-            #for film, cast in self.casts.items():
-             #   print "\n" + film + "\n"
-                
-              #  for actor in cast:
-               #     print actor.name
+            self.casts[movie] = cast
 
     # Find Bacon
     # Uses a Breadth-first search to find Kevin Bacon from the given casts
