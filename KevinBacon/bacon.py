@@ -79,6 +79,14 @@ class Actor:
                         self.baconNumber = 1
                         self.baconPath = [(BACON, movie)]
                         return True
+                        
+                    if actor.baconNumber >= 0 and \
+                        (self.baconNumber < 0 or actor.baconNumber < self.baconNumber + 1) \
+                        and actor.name is not self.name:
+                        
+                        self.baconNumber = actor.baconNumber + 1
+                        self.baconPath = copy.deepcopy(actor.baconPath)
+                        self.baconPath.append((actor.name, movie))
                     
                     # The actor has not examined their own Bacon Number
                     hold = (actor, movie)
@@ -106,10 +114,13 @@ class Actor:
             queue.pop(0)
             
         # If, after searching all actors, no paths were found, indicate this
-        self.baconPath = []
-        self.touchPath = []
-        self.baconNumber = -1
-        return False
+        if self.baconNumber < 0:
+            self.baconPath = []
+            self.touchPath = []
+            self.baconNumber = -1
+            return False
+        else:
+            return True
 
 
 def main():
@@ -164,6 +175,11 @@ def main():
     TonyTodd = actors.get("Tony Todd")
     TonyTodd.findBacon()
     TonyTodd.printBaconPath()
+    
+    # 3 degree
+    AlanRickman = actors.get("Alan Rickman")
+    AlanRickman.findBacon()
+    AlanRickman.printBaconPath()
     
     # No Links (listed)
     TommyWiseau = actors.get("Tommy Wiseau")
