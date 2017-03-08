@@ -31,23 +31,22 @@ class Actor:
         self.casts = {}
         self.baconNumber = -1
         self.baconPath = []
-        self.touchPath = []
     
     # Print Bacon Path
     # Examines the current Bacon Number of the actor and prints the
     # Bacon Path that has been found for the actor along with movies.
     def printBaconPath(self):
         if self.baconNumber < 0:
-            print self.name + " has no connection to Kevin Bacon listed.\n"
+            print "\n" + self.name + " has no connection to Kevin Bacon listed.\n"
         elif self.baconNumber == 0:
-            print self.name + " IS Kevin Bacon.\n"
+            print self.name + " IS Kevin Bacon."
         else:
-            print self.name + "\'s Bacon Number is " + str(self.baconNumber) + ":\n"
+            print "\n" + self.name + "\'s Bacon Number is " + str(self.baconNumber) + ":\n"
             
             linkname = self.name
             
             for actor, movie in self.baconPath[::-1]:
-                print linkname + " and " + actor + " appeared in " + movie + ".\n"
+                print linkname + " and " + actor + " appeared in " + movie + "."
                 linkname = actor
 
     # Add Movie
@@ -70,7 +69,7 @@ class Actor:
         
         # Check the Actor's current casts for Kevin, the lowest value found so far,
         # or queue them for further examination
-        queue = {}
+        queue = []
         
         for movie, cast in self.casts.items():
             if self in cast:
@@ -82,52 +81,39 @@ class Actor:
                         return True
                     
                     # The actor has not examined their own Bacon Number
-                    hold = queue.get(actor.name, None)
-                    
-                    if hold == None and actor.name != self.name:
-                        hold = [(actor, movie)]
-                    
-                    queue[actor.name] = hold
-            else:
-                self.casts[movie] = []
+                    hold = (actor, movie)
+                    queue.append(hold)
         
-        queue = list(queue.values())
-        
-        for path in queue:
-            if path != None and len(path) > 1:
+        while len(queue) > 0:
+            path = queue[0]
+            
+            if len(path) > 0:
                 actor = path[0]
                 movie = path[1]
-                
-                if actor.baconNumber >= 0:
-                    self.baconNumber = actor.baconNumber + 1
-                    self.baconPath = actor.baconPath.deepcopy()
-                    self.baconPath.append((actor.name, movie))
-                    return True
-                
+
                 for film, cast in actor.casts.items():
                     for member in cast:
                         if member.name == BACON:
                             actor.baconNumber = 1
-                            found = actor.touchPath.deepcopy()
                             actor.baconPath = [(BACON, film)]
-                            self.baconNumber = len(found) + 1
-                            self.baconPath = actor.baconPath[:] + [(actor.name, film)] + found[::-1]
+                            self.baconNumber = actor.baconNumber + 1
+                            self.baconPath = actor.baconPath[:] + [(actor.name, movie)]
                             return True
                         else:
-                            if member.name != self.name:
-                                member.touchPath.append((actor.name, movie))
-                                queue.append(member, film)
+                            if member.name != self.name and self.casts.get(movie, None) == None:
+                                queue.append((member, film))
             
             queue.pop(0)
             
         # If, after searching all actors, no paths were found, indicate this
         self.baconPath = []
+        self.touchPath = []
         self.baconNumber = -1
         return False
 
 
 def main():
-    movies = ['Apollo13', 'Armageddon', 'DieHard', 'Footloose', 'TheRock']
+    movies = ['Apollo13', 'Armageddon', 'DieHard', 'Footloose', 'TheRock', 'TheRoom']
     actors = {}
     cast = []
     crew = []
@@ -175,5 +161,13 @@ def main():
     BruceWillis.findBacon()
     BruceWillis.printBaconPath()
 
-
+    TonyTodd = actors.get("Tony Todd")
+    TonyTodd.findBacon()
+    TonyTodd.printBaconPath()
+    
+    # No Links (listed)
+    TommyWiseau = actors.get("Tommy Wiseau")
+    TommyWiseau.findBacon()
+    TommyWiseau.printBaconPath()
+    
 main()
