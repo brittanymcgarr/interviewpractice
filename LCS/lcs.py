@@ -13,6 +13,12 @@
 import copy
 
 
+# Longest Common Subsequence
+# Works on a table from the ends of the strings to the beginning, recording
+# longest of current square plus previous check (x+1, y+1 on table) and the
+# adjacent calls, leaving the longest common subsequence at position 0,0
+# Dynamic Programming solution
+# O(mn) time, O(mn) space
 def LCS(X, Y):
     xsize = len(X)
     ysize = len(Y)
