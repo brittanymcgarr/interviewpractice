@@ -1,0 +1,6 @@
+Art 100, Art 200
+Math 098, Math 121
+Eng 101, Eng 200, Jrn 100
+Eng 300, Eng 400, Jrn 200
+Eng 200, Eng 300
+Jrn 100, Jrn 200

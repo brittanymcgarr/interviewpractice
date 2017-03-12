@@ -1,0 +1,5 @@
+Math 101, Math 181
+Math 181, Math 182, Math 234
+Math 234, Calc 302
+Calc 302, Stat 300
+Stat 300, Stat 408
